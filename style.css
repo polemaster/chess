@@ -1,0 +1,84 @@
+:root {
+  --light-color: #ebecd0;
+  --dark-color: #739552;
+  --board-size: 8;
+  /* --highlight-color: #f39c12; */
+  /* --font-size: 16px; */
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+  background-color: #302e2b;
+  /* background-color: white; */
+}
+
+#chessboard {
+  display: grid;
+  grid-template-columns: repeat(
+    var(--board-size),
+    50px
+  ); /* 8 columns, each 50px wide */
+  grid-template-rows: repeat(
+    var(--board-size),
+    50px
+  ); /* 8 rows, each 50px tall */
+  border-radius: 3px;
+  overflow: hidden; /* Ensures that the squares inside the grid do not stick out beyond the rounded corners. */
+}
+
+.square {
+  width: 50px;
+  height: 50px;
+  display: flex;
+  position: relative;
+  overflow: hidden;
+}
+
+.square-label {
+  position: absolute; /* Allows precise positioning within the square */
+  /* bottom: 0px; /* Pushes the text to the bottom of the square */ */
+  /* left: 2px; /* Pushes the text to the left side of the square */ */
+  z-index: 2; /* Ensures the text appears above the image */
+  font-size: 12px;
+  font-weight: bold;
+  color: rgba(0, 0, 0, 0.6); /* Semi-transparent text color */
+}
+
+.light-square {
+  background-color: var(--light-color);
+}
+
+.dark-square {
+  background-color: var(--dark-color);
+}
+
+.square-label.light {
+  color: var(--dark-color);
+}
+
+.square-label.dark {
+  color: var(--light-color);
+}
+
+.bottom-right {
+  bottom: 0;
+  right: 4px;
+}
+
+.top-left {
+  top: 2px;
+  left: 2px;
+}
+
+img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  /* object-fit: contain; */
+}

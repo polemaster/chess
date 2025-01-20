@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/x-icon" href="/images/crown.png" />
+    <title>Chess</title>
+    <link href="style.css" rel="stylesheet" />
+    <script type="importmap">
+      {
+        "imports": {
+          "constants": "/src/constants.js",
+          "logic": "/src/logic",
+          "logic/": "/src/logic/",
+          "logic/square": "/src/logic/square.js",
+          "logic/board": "/src/logic/board.js",
+          "logic/game": "/src/logic/game.js",
+          "gui": "/src/gui",
+          "gui/": "/src/gui/",
+          "pieces/": "/src/logic/pieces/",
+          "utils": "/src/utils.js"
+        }
+      }
+    </script>
+    <script src="src/main-loop.js" type="module"></script>
+  </head>
+  <body>
+    <div id="chessboard"></div>
+  </body>
+</html>
