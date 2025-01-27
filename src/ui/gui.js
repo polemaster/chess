@@ -1,12 +1,9 @@
 import { BOARD_SIZE, PIECE_IMAGES } from "constants";
 import { Square } from "logic/square";
 
-export class ChessUI {
-  constructor(game, pieces) {
+export class GUI {
+  constructor(game) {
     this.game = game;
-    this.createBoard();
-    this.renderStartingPosition(pieces);
-    this.addEventListeners();
   }
 
   createBoard() {
@@ -54,6 +51,7 @@ export class ChessUI {
     const html_square = document.getElementById(square);
     const img = document.createElement("img");
     img.src = path;
+    img.classList.add("piece");
     html_square.appendChild(img);
   }
 
@@ -67,17 +65,60 @@ export class ChessUI {
   }
 
   addEventListeners() {
+    this.addClickListener();
+    this.addDragStartListener();
+    this.addDragEndListener();
+    this.addDragOverListener();
+    this.addDragDropListener();
+  }
+
+  addClickListener() {
     this.html_board.addEventListener("click", (event) => {
-      const position = event.target.dataset.position;
-      if (position) {
-        this.handleSquareClick(position);
-      }
+      const square = this.identifySquare(event);
+      console.log(`Square clicked: ${square}`);
+      this.game.clicked(square);
     });
   }
 
-  handleSquareClick(position) {
-    const [row, col] = position.split("-").map(Number);
-    console.log(`Square clicked: ${row}, ${col}`);
-    // Pass this input to the game logic for processing
+  addDragStartListener() {
+    this.html_board.addEventListener("dragstart", (event) => {
+      const square = this.identifySquare(event);
+      console.log(`Dragging from: ${square}`);
+      this.game.clicked(square);
+    });
+  }
+
+  addDragEndListener() {
+    this.html_board.addEventListener("dragend", (event) => {
+      this.game.resetMove();
+    });
+  }
+
+  addDragDropListener() {
+    this.html_board.addEventListener("drop", (event) => {
+      const square = this.identifySquare(event);
+      console.log(`Dragged to: ${square}`);
+      this.game.clicked(square);
+    });
+  }
+
+  addDragOverListener() {
+    this.html_board.addEventListener("dragover", (event) => {
+      event.preventDefault();
+    });
+  }
+
+  identifySquare(event) {
+    let square_id;
+    if (event.target.classList.contains("square")) {
+      square_id = event.target.id;
+    } else if (event.target.classList.contains("piece")) {
+      square_id = event.target.parentNode.id;
+    }
+    return square_id;
+  }
+
+  endGame(result) {
+    console.log("The UI updating after game end...");
   }
 }

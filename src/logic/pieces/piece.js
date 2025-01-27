@@ -4,4 +4,7 @@ export class Piece {
     this.color = color;
   }
   possibleMoves(square) {}
+  move(square) {
+    this.square = square;
+  }
 }
