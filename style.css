@@ -36,6 +36,8 @@ body {
   display: flex;
   position: relative;
   overflow: hidden;
+  align-items: center;
+  justify-content: center;
 }
 
 .square-label {
@@ -81,4 +83,12 @@ img {
   width: 100%;
   height: 100%;
   /* object-fit: contain; */
+}
+
+.possible_move {
+  width: 15px;
+  height: 15px;
+  background-color: yellow;
+  border-radius: 50%;
+  pointer-events: none;
 }

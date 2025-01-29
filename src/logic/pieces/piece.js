@@ -3,7 +3,11 @@ export class Piece {
     this.square = starting_square;
     this.color = color;
   }
-  possibleMoves(square) {}
+  getPossibleMoves(board) {
+    throw new Error(
+      "Method getPossibleMoves(board) must be defined by each subclass",
+    );
+  }
   move(square) {
     this.square = square;
   }

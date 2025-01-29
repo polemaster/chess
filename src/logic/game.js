@@ -5,7 +5,7 @@ export class Game {
     this.board = board;
     this.current_turn = "white";
     this.#ui = null;
-    this.started_move = false;
+    this.piece_to_move = null;
     this.is_end = false;
   }
 
@@ -22,37 +22,51 @@ export class Game {
   }
 
   clicked(square) {
-    if (this.started_move) {
-      console.log("Making move...");
-      this.makeMove(this.started_move, square);
-      this.resetMove();
-    } else if (this.getPiece(square)) {
-      console.log("Started moving " + this.getPiece(square));
-      this.started_move = square;
+    this.ui.resetShowingMoves();
+    const piece = this.board.getPiece(square);
+
+    // If clicked the same square, cancel the move
+    if (this.piece_to_move && square === this.piece_to_move.square) {
+      this.piece_to_move = null;
     }
+    // Else if the move
+    else if (
+      this.piece_to_move && // has already started and
+      (!piece || piece.color !== this.piece_to_move.color) // the square is either empty or contains enemy piece,
+    ) {
+      // atempt to make a move
+      console.log("Making move...");
+      this.makeMove(this.piece_to_move, square);
+      this.resetMove();
+    }
+    // Else if this square contains a piece of our color, start making a move
+    else if (piece && piece.color === this.current_turn) {
+      console.log("Started moving " + piece.name);
+      this.ui.showMoves(piece);
+      this.piece_to_move = piece;
+    }
+    console.log();
   }
 
   resetMove() {
-    console.log("Resetting move...");
-    this.started_move = null;
+    console.log("Resetting clicked piece...");
+    this.piece_to_move = null;
   }
 
-  makeMove(from, to) {
-    if (from === to) return;
-
-    const piece = this.getPiece(from);
+  makeMove(piece, to) {
+    const from = piece.square;
 
     // Return if the move is invalid
-    if (!this.isValidMove(piece, from, to)) {
+    if (!this.isValidMove(piece, to)) {
       // this.ui.stopDrag()
       return;
     }
 
     // Check if it is a capture
     if (this.isCapture(to)) {
-      console.log("Capturing...", this.getPiece(to));
+      console.log("Capturing...", this.board.getPiece(to));
       this.ui.removePiece(to);
-      this.removePiece(to);
+      this.board.removePiece(to);
     }
 
     // Move the piece
@@ -70,31 +84,15 @@ export class Game {
     }
   }
 
-  isValidMove(piece, from, to) {
-    // Implement chess rules for move validation
-    return true; // Simplified for brevity
+  isValidMove(piece, dst_square) {
+    return piece.getPossibleMoves(this.board).includes(dst_square);
   }
 
   isCapture(square) {
-    if (this.getPiece(square)) {
+    if (this.board.getPiece(square)) {
       return true;
     }
     return false;
-  }
-
-  getPiece(square) {
-    for (let piece of this.pieces) {
-      if (piece.square === square) return piece;
-    }
-    return null;
-  }
-
-  removePiece(square) {
-    const index = this.pieces.findIndex((piece) => piece.square === square);
-    if (index !== -1) {
-      console.log("removed piece at", index);
-      this.pieces.splice(index, 1);
-    }
   }
 
   isEnd() {

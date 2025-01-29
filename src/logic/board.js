@@ -44,5 +44,55 @@ export class Board {
     this.pieces.push(piece);
   }
 
-  createBoard() {}
+  // 1 argument: square (a1, a2, etc.)
+  // 2 arguments: col, row ([a, 1], [a, 2], etc.)
+  getPiece(...args) {
+    if (arguments.length === 1) {
+      const square = args[0];
+      for (let piece of this.pieces) {
+        if (piece.square === square) return piece;
+      }
+    } else if (arguments.length === 2) {
+      const [col, row] = args;
+      for (let piece of this.pieces) {
+        if (piece.square === `${col}${row}`) return piece;
+      }
+    }
+    return null;
+  }
+
+  removePiece(square) {
+    const index = this.pieces.findIndex((piece) => piece.square === square);
+    if (index !== -1) {
+      console.log(`Removed ${this.pieces[index].name} from ${square}`);
+      this.pieces.splice(index, 1);
+    }
+  }
+
+  isEmpty(...args) {
+    if (this.getPiece(...args)) {
+      return false;
+    }
+    return true;
+  }
+
+  isSameColorPiece(square, color) {
+    if (!this.isEmpty(square)) {
+      const piece = this.getPiece(square);
+      if (piece && piece.color === color) {
+        return true;
+      }
+    }
+    return null;
+  }
+
+  isDifferentColorPiece(square, color) {
+    if (!this.isEmpty(square)) {
+      const piece = this.getPiece(square);
+      if (piece && piece.color !== color) {
+        return true;
+      }
+    }
+    return null;
+  }
 }

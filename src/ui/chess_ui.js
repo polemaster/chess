@@ -23,7 +23,26 @@ export class ChessUI {
   }
 
   removePiece(square) {
-    console.log("Removing ", square);
+    console.log("Removing image of piece on", square);
     document.querySelector(`#${square} img`).remove();
+  }
+
+  showMoves(piece) {
+    console.log("Showing moves of", piece.name);
+    const squares = piece.getPossibleMoves(this.game.board);
+    for (const square of squares) {
+      console.log(square);
+      const html_square = document.getElementById(square);
+      const circle = document.createElement("div");
+      circle.classList.add("possible_move");
+      html_square.appendChild(circle);
+    }
+  }
+
+  resetShowingMoves() {
+    const squares = document.querySelectorAll(".possible_move");
+    for (const square of squares) {
+      square.remove();
+    }
   }
 }
