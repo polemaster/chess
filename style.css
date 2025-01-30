@@ -92,3 +92,12 @@ img {
   border-radius: 50%;
   pointer-events: none;
 }
+
+.possible_capture {
+  width: 90%;
+  height: 90%;
+  border: 2px solid yellow;
+  border-radius: 50%;
+  position: absolute;
+  pointer-events: none;
+}

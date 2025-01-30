@@ -34,13 +34,19 @@ export class ChessUI {
       console.log(square);
       const html_square = document.getElementById(square);
       const circle = document.createElement("div");
-      circle.classList.add("possible_move");
+      const has_image = Array.from(html_square.children).some(
+        (child) => child.tagName === "IMG",
+      );
+      if (!has_image) circle.classList.add("possible_move");
+      else circle.classList.add("possible_capture");
       html_square.appendChild(circle);
     }
   }
 
   resetShowingMoves() {
-    const squares = document.querySelectorAll(".possible_move");
+    const squares = document.querySelectorAll(
+      ".possible_move, .possible_capture",
+    );
     for (const square of squares) {
       square.remove();
     }

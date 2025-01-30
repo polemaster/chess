@@ -85,6 +85,8 @@ export class Game {
   }
 
   isValidMove(piece, dst_square) {
+    // const tmp_board = board.simulate_move(piece, dst_square);
+    // if (this.isCheck(tmp_board)) return false;
     return piece.getPossibleMoves(this.board).includes(dst_square);
   }
 
