@@ -101,3 +101,29 @@ img {
   position: absolute;
   pointer-events: none;
 }
+
+
+/* Button Styling */
+#reset_button {
+  background-color: #4CAF50; /* Green background */
+  color: white;              /* White text */
+  font-size: 16px;           /* Medium font size */
+  padding: 12px 16px;        /* Add padding for better button size */
+  margin-left: 15px;
+  border: none;              /* Remove default border */
+  border-radius: 8px;        /* Rounded corners */
+  cursor: pointer;          /* Change cursor to pointer */
+  transition: all 0.3s ease; /* Smooth transition for hover effects */
+}
+
+/* Button hover effect */
+#reset_button:hover {
+  background-color: #45a049; /* Darker green on hover */
+  transform: scale(1.05);     /* Slightly enlarge the button */
+}
+
+/* Focus state (when clicked) */
+#reset_button:focus {
+  outline: none;             /* Remove default outline */
+  box-shadow: 0 0 10px rgba(72, 217, 133, 0.8); /* Soft glow */
+}

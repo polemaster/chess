@@ -1,9 +1,11 @@
+import { Board } from "logic/board";
+
 export class Game {
   #ui;
 
-  constructor(board) {
+  constructor(board, current_player) {
     this.board = board;
-    this.current_turn = "white";
+    this.current_turn = current_player ? current_player : "white";
     this.#ui = null;
     this.piece_to_move = null;
     this.is_end = false;
@@ -21,6 +23,7 @@ export class Game {
     return this.board.pieces;
   }
 
+  // Handles click when a square is clicked
   clicked(square) {
     this.ui.resetShowingMoves();
     const piece = this.board.getPiece(square);
@@ -76,6 +79,8 @@ export class Game {
     // Switch turns
     this.current_turn = this.current_turn === "white" ? "black" : "white";
 
+    this.saveState();
+
     // Check for the end condition
     if (this.isEnd()) {
       console.log("Game ended");
@@ -85,9 +90,41 @@ export class Game {
   }
 
   isValidMove(piece, dst_square) {
-    // const tmp_board = board.simulate_move(piece, dst_square);
+    const tmp_board = this.simulateMove(piece, dst_square);
     // if (this.isCheck(tmp_board)) return false;
     return piece.getPossibleMoves(this.board).includes(dst_square);
+  }
+
+  simulateMove(piece, square) {
+    const tmp_board = new Board();
+    // tmp board pieces are not of Piece object - TO-DO: correct it
+    // tmp_board.pieces = structuredClone(this.pieces);
+    tmp_board.copyPieces(this.pieces);
+    console.log("Is check:", this.isCheck(tmp_board));
+
+    // tmp_board.createStartingPosition();
+    const pieces = tmp_board.pieces;
+    const new_piece = pieces.filter((p) => p.square === piece.square)[0];
+  }
+
+  // Returns true if "color"'s king is being checked
+  isCheck(board, color) {
+    const king = board.pieces.filter(
+      (p) => p.color === color && p.type === "king",
+    );
+    const opposite_color = color === "white" ? "black" : "white";
+    const opposite_pieces = board.pieces.filter(
+      (p) => p.color === opposite_color,
+    );
+
+    for (const piece of board.pieces) {
+      const moves = piece.getPossibleMoves(board);
+      for (const move of moves) {
+        if (move === king.square) return true;
+      }
+    }
+
+    return false;
   }
 
   isCapture(square) {
@@ -98,8 +135,42 @@ export class Game {
   }
 
   isEnd() {
+    const white = this.getNumberOfValidMoves("white");
+    const black = this.getNumberOfValidMoves("black");
+
+    if (white === 0 || black === 0) return true;
+
     return false;
   }
 
-  startGame() {}
+  // For each piece check all of its moves and count only valid ones
+  getNumberOfValidMoves(color) {
+    const pieces = this.pieces.filter((p) => p.color === color);
+    let result = 0;
+    for (const piece of pieces) {
+      result += piece
+        .getPossibleMoves(this.board)
+        .filter((p) => this.isValidMove(piece, p)).length;
+    }
+    return result;
+  }
+
+  saveState() {
+    console.log("Saving state...");
+    const state = {
+      board: this.board,
+      current_player: this.current_turn,
+    };
+    sessionStorage.setItem("board_state", JSON.stringify(state));
+    console.log("Saved state:", JSON.stringify(state));
+  }
+
+  resetGame() {
+    this.board.resetBoard();
+    this.board.createStartingPosition();
+    this.current_turn = "white";
+    this.piece_to_move = null;
+    this.is_end = false;
+    console.log("Game resetted");
+  }
 }

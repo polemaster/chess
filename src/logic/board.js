@@ -1,14 +1,43 @@
-import { Square } from "logic/square";
 import { BOARD_SIZE } from "constants";
 import { Pawn, Rook, Knight, Bishop, Queen, King } from "pieces/index.js";
 
 export class Board {
+  #pieces;
+
   constructor() {
-    this.html_board = document.getElementById("chessboard");
-    this.pieces = [];
+    this.#pieces = [];
   }
 
-  createStartingPosition() {
+  toJSON() {
+    return {
+      pieces: this.pieces.map((piece) => ({
+        color: piece.color,
+        type: piece.type,
+        square: piece.square,
+      })),
+    };
+  }
+
+  get pieces() {
+    return this.#pieces;
+  }
+
+  set pieces(value) {
+    this.#pieces = value;
+  }
+
+  createStartingPosition(pieces) {
+    if (this.pieces.length > 0) {
+      console.log("Pieces:", this.pieces);
+      throw new Error("Pieces already exist");
+    }
+
+    // If loading pieces from a saved state
+    if (pieces) {
+      this.copyPieces(pieces);
+      return this.pieces;
+    }
+
     // Pawns
     for (let i = 0; i < BOARD_SIZE; i++) {
       this.createPiece(new Pawn(String.fromCharCode(i + 97) + "7", "black"));
@@ -42,6 +71,37 @@ export class Board {
 
   createPiece(piece) {
     this.pieces.push(piece);
+  }
+
+  copyPieces(pieces) {
+    for (const piece of pieces) {
+      this.copyPiece(piece);
+    }
+  }
+
+  copyPiece(piece) {
+    switch (piece.type) {
+      case "king":
+        this.createPiece(new King(piece.square, piece.color));
+        break;
+      case "queen":
+        this.createPiece(new Queen(piece.square, piece.color));
+        break;
+      case "rook":
+        this.createPiece(new Rook(piece.square, piece.color));
+        break;
+      case "bishop":
+        this.createPiece(new Bishop(piece.square, piece.color));
+        break;
+      case "knight":
+        this.createPiece(new Knight(piece.square, piece.color));
+        break;
+      case "pawn":
+        this.createPiece(new Pawn(piece.square, piece.color));
+        break;
+      default:
+        console.log("Unrecognized piece to copy");
+    }
   }
 
   // 1 argument: square (a1, a2, etc.)
@@ -94,5 +154,9 @@ export class Board {
       }
     }
     return null;
+  }
+
+  resetBoard() {
+    this.pieces = [];
   }
 }

@@ -1,21 +1,21 @@
 import { BOARD_SIZE, PIECE_IMAGES } from "constants";
 import { Square } from "logic/square";
 
-export class GUI {
+export class BoardDisplay {
   constructor(game) {
     this.game = game;
+    this.html_board = document.getElementById("chessboard");
   }
 
   createBoard() {
-    this.html_board = document.getElementById("chessboard");
-
     for (let row = 0; row < BOARD_SIZE; row++) {
       for (let col = 0; col < BOARD_SIZE; col++) {
         const square = new Square(row, col);
         const html_square = document.createElement("div");
 
-        html_square.classList.add("square");
+        html_square.classList.add("square"); // needed for CSS styling and creating CSS grid
 
+        // If the square needs to have a label (row or col number), add it to the square
         if (square.label.text) {
           const label = document.createElement("div");
           label.textContent = square.label.text;
@@ -39,8 +39,8 @@ export class GUI {
           }
         }
 
-        html_square.classList.add(square.color + "-square");
-        html_square.id = square.square;
+        html_square.classList.add(square.color + "-square"); // needed for CSS styling
+        html_square.id = square.square; // needed for accessing squares (in game logic)
 
         this.html_board.appendChild(html_square);
       }
@@ -55,7 +55,7 @@ export class GUI {
     html_square.appendChild(img);
   }
 
-  renderStartingPosition(pieces) {
+  addPiecesImages(pieces) {
     for (const piece of pieces) {
       this.createPiece(
         piece.square,
@@ -116,6 +116,16 @@ export class GUI {
       square_id = event.target.parentNode.id;
     }
     return square_id;
+  }
+
+  resetDisplay(pieces) {
+    // First, remove all images from the board
+    const images = this.html_board.querySelectorAll("img");
+
+    images.forEach((image) => image.remove());
+
+    // Then render all images again
+    this.addPiecesImages(pieces);
   }
 
   endGame(result) {

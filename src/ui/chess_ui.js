@@ -1,17 +1,20 @@
-import { GUI } from "./gui.js";
+import { BoardDisplay } from "./board_display.js";
 import { Sound } from "./sound.js";
+import { ResetGameButton } from "./reset_button.js";
 
 export class ChessUI {
   constructor(game, pieces) {
     this.game = game;
 
-    this.gui = new GUI(game);
-    this.gui.createBoard();
-    this.gui.renderStartingPosition(pieces);
-    this.gui.addEventListeners();
+    this.board_display = new BoardDisplay(game);
+    this.board_display.createBoard();
+    this.board_display.addPiecesImages(pieces);
+    this.board_display.addEventListeners();
 
     this.sound = new Sound(game);
     this.sound.addEventListeners();
+
+    this.reset_button = new ResetGameButton(game, this.board_display);
   }
 
   movePiece(from, to) {
