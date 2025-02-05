@@ -66,7 +66,7 @@ export class Game {
     }
 
     // Check if it is a capture
-    if (this.isCapture(to)) {
+    if (this.isCapture(this.board, to)) {
       console.log("Capturing...", this.board.getPiece(to));
       this.ui.removePiece(to);
       this.board.removePiece(to);
@@ -85,60 +85,70 @@ export class Game {
     if (this.isEnd()) {
       console.log("Game ended");
       this.is_end = true;
-      this.#ui.endGame(result);
+      this.ui.endGame(result);
     }
   }
 
-  isValidMove(piece, dst_square) {
-    const tmp_board = this.simulateMove(piece, dst_square);
-    // if (this.isCheck(tmp_board)) return false;
-    return piece.getPossibleMoves(this.board).includes(dst_square);
-  }
-
-  simulateMove(piece, square) {
+  isValidMove(piece, square) {
+    // Copy the board (deep copy)
     const tmp_board = new Board();
-    // tmp board pieces are not of Piece object - TO-DO: correct it
-    // tmp_board.pieces = structuredClone(this.pieces);
     tmp_board.copyPieces(this.pieces);
-    console.log("Is check:", this.isCheck(tmp_board));
 
-    // tmp_board.createStartingPosition();
     const pieces = tmp_board.pieces;
+    // Find the piece to move in the copied board
     const new_piece = pieces.filter((p) => p.square === piece.square)[0];
+
+    // If the move is a capture, remove the captured piece
+    if (this.isCapture(tmp_board, square)) {
+      tmp_board.removePiece(square);
+    }
+
+    new_piece.move(square);
+
+    // If after a move, the king is checked, it is invalid
+    if (this.isCheck(tmp_board, piece.color)) {
+      return false;
+    }
+
+    return piece.getPossibleMoves(this.board).includes(square);
   }
+
+  simulateMove(piece, square) {}
 
   // Returns true if "color"'s king is being checked
   isCheck(board, color) {
     const king = board.pieces.filter(
       (p) => p.color === color && p.type === "king",
-    );
+    )[0];
     const opposite_color = color === "white" ? "black" : "white";
     const opposite_pieces = board.pieces.filter(
       (p) => p.color === opposite_color,
     );
 
-    for (const piece of board.pieces) {
+    for (const piece of opposite_pieces) {
       const moves = piece.getPossibleMoves(board);
       for (const move of moves) {
-        if (move === king.square) return true;
+        if (move === king.square) {
+          return true;
+        }
       }
     }
 
     return false;
   }
 
-  isCapture(square) {
-    if (this.board.getPiece(square)) {
+  isCapture(board, square) {
+    if (board.getPiece(square)) {
       return true;
     }
     return false;
   }
 
   isEnd() {
-    const white = this.getNumberOfValidMoves("white");
-    const black = this.getNumberOfValidMoves("black");
+    // const white = this.getNumberOfValidMoves("white");
+    // const black = this.getNumberOfValidMoves("black");
 
-    if (white === 0 || black === 0) return true;
+    // if (white === 0 || black === 0) return true;
 
     return false;
   }
@@ -162,7 +172,6 @@ export class Game {
       current_player: this.current_turn,
     };
     sessionStorage.setItem("board_state", JSON.stringify(state));
-    console.log("Saved state:", JSON.stringify(state));
   }
 
   resetGame() {
@@ -171,6 +180,7 @@ export class Game {
     this.current_turn = "white";
     this.piece_to_move = null;
     this.is_end = false;
+    sessionStorage.clear();
     console.log("Game resetted");
   }
 }

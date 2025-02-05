@@ -43,11 +43,12 @@ body {
 .square-label {
   position: absolute; /* Allows precise positioning within the square */
   /* bottom: 0px; /* Pushes the text to the bottom of the square */ */
-  /* left: 2px; /* Pushes the text to the left side of the square */ */
+  /* left: 20px; /* Pushes the text to the left side of the square */ */
   z-index: 2; /* Ensures the text appears above the image */
   font-size: 12px;
   font-weight: bold;
   color: rgba(0, 0, 0, 0.6); /* Semi-transparent text color */
+  user-select: none;
 }
 
 .light-square {
@@ -68,7 +69,7 @@ body {
 
 .bottom-right {
   bottom: 0;
-  right: 4px;
+  right: 2px;
 }
 
 .top-left {
@@ -82,7 +83,8 @@ img {
   left: 0;
   width: 100%;
   height: 100%;
-  /* object-fit: contain; */
+  user-select: none;
+  transform: scale(0.9);
 }
 
 .possible_move {

@@ -32,7 +32,9 @@ export class ChessUI {
 
   showMoves(piece) {
     console.log("Showing moves of", piece.name);
-    const squares = piece.getPossibleMoves(this.game.board);
+    const squares = piece
+      .getPossibleMoves(this.game.board)
+      .filter((square) => this.game.isValidMove(piece, square));
     for (const square of squares) {
       console.log(square);
       const html_square = document.getElementById(square);

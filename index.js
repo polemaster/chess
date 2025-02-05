@@ -12,6 +12,6 @@ const board = new Board();
 
 board.createStartingPosition(state?.board?.pieces);
 
-const game = new Game(board, state.current_player);
+const game = new Game(board, state?.current_player);
 
 game.ui = new ChessUI(game, board.pieces);
