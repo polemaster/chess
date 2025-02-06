@@ -56,13 +56,34 @@ export class Game {
     this.piece_to_move = null;
   }
 
-  makeMove(piece, to) {
+  async makeMove(piece, to) {
     const from = piece.square;
 
     // Return if the move is invalid
     if (!this.isValidMove(piece, to)) {
       // this.ui.stopDrag()
       return;
+    }
+
+    // Handle pawn promotion
+    if (this.isPromotion(piece)) {
+      console.log("Promoting pawn...");
+
+      // Wait until the Promise from getPromotionPiece is resolved
+      const selected_piece = await this.ui.getPromotionPiece(piece, to);
+      console.log("selected piece:", selected_piece);
+
+      if (!selected_piece) {
+        console.log("Cancelling selection");
+        return;
+      }
+
+      // Once the Promise is resolved, continue with the promotion logic
+      const new_piece = this.promotePawn(piece, selected_piece);
+      console.log("new piece:", new_piece);
+      this.board.removePiece(piece.square);
+      piece = new_piece;
+      this.ui.replacePiece(piece.square, piece);
     }
 
     // Check if it is a capture
@@ -85,7 +106,7 @@ export class Game {
     if (this.isEnd()) {
       console.log("Game ended");
       this.is_end = true;
-      this.ui.endGame(result);
+      this.ui.endGame("");
     }
   }
 
@@ -112,8 +133,6 @@ export class Game {
 
     return piece.getPossibleMoves(this.board).includes(square);
   }
-
-  simulateMove(piece, square) {}
 
   // Returns true if "color"'s king is being checked
   isCheck(board, color) {
@@ -144,11 +163,23 @@ export class Game {
     return false;
   }
 
-  isEnd() {
-    // const white = this.getNumberOfValidMoves("white");
-    // const black = this.getNumberOfValidMoves("black");
+  isPromotion(piece) {
+    if (piece.type === "pawn") {
+      const end_row = piece.starting_row === 2 ? "7" : "2";
+      if (piece.square.charAt(1) === end_row) return true;
+    }
+    return false;
+  }
 
-    // if (white === 0 || black === 0) return true;
+  promotePawn(piece, new_type) {
+    return this.board.createPiece(new_type, piece.square, piece.color);
+  }
+
+  isEnd() {
+    const white = this.getNumberOfValidMoves("white");
+    const black = this.getNumberOfValidMoves("black");
+
+    if (white === 0 || black === 0) return true;
 
     return false;
   }

@@ -20,7 +20,6 @@ export class Pawn extends Piece {
 
     const row = Number(this.square[1]);
 
-    // Do a move for black
     if (this.color === "black" || this.color === "white") {
       // Add moves in forward direction
       if (row === this.starting_row) {
@@ -65,35 +64,9 @@ export class Pawn extends Piece {
           this.capture_directions[1],
         ),
       );
-    } // Do a move for white
-    else if (this.color === "white") {
-      // Add moves in forward direction
-      if (row === 2) {
-        moves.push(
-          ...Utils.getSquares(board, this.square, this.color, "up").slice(0, 2), // get two first moves up
-        );
-      } else {
-        moves.push(Utils.getSquares(board, this.square, this.color, "up")[0]); // get one first move up
-      }
-
-      // Remove the moves forward if there is an enemy there
-      for (let i = moves.length - 1; i >= 0; i--) {
-        if (
-          !board.isEmpty(moves[i]) &&
-          board.getPiece(moves[i]).color !== this.color
-        ) {
-          moves.splice(i, 1);
-        }
-      }
-
-      // Add capturing possibilities
-      diagonal_moves.push(
-        Utils.getSquare(board, this.square, this.color, "up-left"),
-      );
-      diagonal_moves.push(
-        Utils.getSquare(board, this.square, this.color, "up-right"),
-      );
     }
+
+    moves = moves.filter(Boolean);
 
     // Pawns can move diagonally only if it is a capture
     for (const capture of diagonal_moves) {

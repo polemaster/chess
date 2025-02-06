@@ -47,14 +47,14 @@ export class BoardDisplay {
     }
   }
 
-  createPiece(square, path) {
+  createPiece(square, path, img_class) {
     const html_square = document.getElementById(square);
     const img = document.createElement("img");
     img.src = path;
     img.classList.add("piece");
+    if (img_class) img.classList.add(img_class);
     html_square.appendChild(img);
   }
-
   addPiecesImages(pieces) {
     for (const piece of pieces) {
       this.createPiece(
@@ -126,9 +126,10 @@ export class BoardDisplay {
 
     // Then render all images again
     this.addPiecesImages(pieces);
+    this.makeTransparent(1);
   }
 
-  endGame(result) {
-    console.log("The UI updating after game end...");
+  makeTransparent(value) {
+    this.html_board.style.opacity = value;
   }
 }
