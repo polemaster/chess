@@ -1,14 +1,16 @@
 import { Board } from "logic/board";
+import * as Utils from "utils";
 
 export class Game {
   #ui;
 
-  constructor(board, current_player) {
+  constructor(board, state) {
     this.board = board;
-    this.current_turn = current_player ? current_player : "white";
+    this.current_turn = state?.current_player ? state.current_player : "white";
     this.#ui = null;
     this.piece_to_move = null;
     this.is_end = false;
+    this.pieces_moved = state?.pieces_moved ? state.pieces_moved : {};
   }
 
   get ui() {
@@ -61,7 +63,6 @@ export class Game {
 
     // Return if the move is invalid
     if (!this.isValidMove(piece, to)) {
-      // this.ui.stopDrag()
       return;
     }
 
@@ -86,6 +87,17 @@ export class Game {
       this.ui.replacePiece(piece.square, piece);
     }
 
+    // If castle, move the rook behind the king
+    if (this.isCastle(piece, to)) {
+      console.log("Castled");
+      const rook_square = (to.charAt(0) === "c" ? "a" : "h") + to.charAt(1);
+      const rook = this.board.getPiece(rook_square);
+      const new_rook_square = (to.charAt(0) === "c" ? "d" : "f") + to.charAt(1);
+
+      rook.move(new_rook_square);
+      this.ui.movePiece(rook_square, new_rook_square);
+    }
+
     // Check if it is a capture
     if (this.isCapture(this.board, to)) {
       console.log("Capturing...", this.board.getPiece(to));
@@ -99,6 +111,12 @@ export class Game {
 
     // Switch turns
     this.current_turn = this.current_turn === "white" ? "black" : "white";
+
+    // Update pieces moved (required for castling)
+    if (piece.type === "king") this.pieces_moved[piece.color + "_king"] = true;
+    if (piece.type === "rook")
+      this.pieces_moved[piece.color + "_" + piece.square.charAt(0) + "_rook"] =
+        true;
 
     this.saveState();
 
@@ -115,9 +133,10 @@ export class Game {
     const tmp_board = new Board();
     tmp_board.copyPieces(this.pieces);
 
-    const pieces = tmp_board.pieces;
     // Find the piece to move in the copied board
-    const new_piece = pieces.filter((p) => p.square === piece.square)[0];
+    const new_piece = tmp_board.pieces.filter(
+      (p) => p.square === piece.square,
+    )[0];
 
     // If the move is a capture, remove the captured piece
     if (this.isCapture(tmp_board, square)) {
@@ -131,7 +150,7 @@ export class Game {
       return false;
     }
 
-    return piece.getPossibleMoves(this.board).includes(square);
+    return this.getPiecePossibleMoves(piece).includes(square);
   }
 
   // Returns true if "color"'s king is being checked
@@ -156,11 +175,63 @@ export class Game {
     return false;
   }
 
+  // Checks if any piece of given "color" attacks a "square"
+  isAttacked(square, color) {
+    const pieces = this.pieces.filter((piece) => piece.color === color);
+
+    for (const piece of pieces) {
+      if (piece.getPossibleMoves(this.board).includes(square)) return true;
+    }
+
+    return false;
+  }
+
   isCapture(board, square) {
     if (board.getPiece(square)) {
       return true;
     }
     return false;
+  }
+
+  isCastle(piece, square) {
+    if (
+      piece.type === "king" &&
+      Math.abs(piece.square.charCodeAt(0) - square.charCodeAt(0)) === 2
+    )
+      return true;
+    return false;
+  }
+
+  canCastle(king, rook) {
+    // check if the rook is a rook
+    if (!rook || rook.type !== "rook") return false;
+
+    // this guarantees that both king and rook haven't moved from their original square
+    if (
+      this.pieces_moved[king.color + "_king"] ||
+      this.pieces_moved[rook.color + "_" + rook.square.charAt(0) + "_rook"]
+    )
+      return false;
+
+    // Find squares between the king and the rook
+    let min = Math.min(king.square.charCodeAt(0), rook.square.charCodeAt(0));
+    let max = Math.max(king.square.charCodeAt(0), rook.square.charCodeAt(0));
+    const squares_between = Array.from(
+      { length: max - min - 1 },
+      (_, i) => String.fromCharCode(min + i + 1) + king.square.charAt(1),
+    );
+
+    if (!squares_between.every((square) => !this.board.getPiece(square)))
+      return false;
+
+    // Now we need to find if kings passes through an attacked square
+    const closer_square_col = rook.square.charAt(0) === "a" ? "d" : "f";
+    const closer_square = closer_square_col + king.square.charAt(1);
+
+    if (this.isAttacked(closer_square, Utils.getOppositeColor(king.color)))
+      return false;
+
+    return true;
   }
 
   isPromotion(piece) {
@@ -184,6 +255,36 @@ export class Game {
     return false;
   }
 
+  getPiecePossibleMoves(piece, board = this.board) {
+    const moves = piece.getPossibleMoves(board);
+
+    // find rooks for castling
+    const a_rook = board.getPiece("a" + piece.square.charAt(1));
+    const h_rook = board.getPiece("h" + piece.square.charAt(1));
+
+    // short castling
+    if (piece.type === "king" && this.canCastle(piece, a_rook)) {
+      moves.push(
+        String.fromCharCode(piece.square.charCodeAt(0) - 2) +
+          piece.square.charAt(1),
+      );
+    }
+
+    // long castling
+    if (piece.type === "king" && this.canCastle(piece, h_rook)) {
+      moves.push(
+        String.fromCharCode(piece.square.charCodeAt(0) + 2) +
+          piece.square.charAt(1),
+      );
+    }
+
+    // en passant
+    if (piece.type === "pawn" && piece.can_enpassant) {
+      // implement en passant
+    }
+    return moves;
+  }
+
   // For each piece check all of its moves and count only valid ones
   getNumberOfValidMoves(color) {
     const pieces = this.pieces.filter((p) => p.color === color);
@@ -201,6 +302,7 @@ export class Game {
     const state = {
       board: this.board,
       current_player: this.current_turn,
+      pieces_moved: this.pieces_moved,
     };
     sessionStorage.setItem("board_state", JSON.stringify(state));
   }
@@ -211,6 +313,7 @@ export class Game {
     this.current_turn = "white";
     this.piece_to_move = null;
     this.is_end = false;
+    this.pieces_moved = {};
     sessionStorage.clear();
     console.log("Game resetted");
   }

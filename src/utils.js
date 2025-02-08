@@ -112,4 +112,8 @@ function getSquares(board, square, color, direction) {
   return result;
 }
 
-export { getSquare, getSquares };
+function getOppositeColor(color) {
+  return color === "white" ? "black" : "white";
+}
+
+export { getSquare, getSquares, getOppositeColor };

@@ -12,6 +12,7 @@ export class Pawn extends Piece {
         ? ["up-left", "up-right"]
         : ["down-left", "down-right"];
     this.starting_row = this.color === "white" ? 2 : 7;
+    this.can_enpassant = false;
   }
 
   getPossibleMoves(board) {

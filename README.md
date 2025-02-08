@@ -24,4 +24,3 @@ Self-explanatory
 1. There are several ways to run a local web server. Here are 2 of them:
    - Start live web server with python: `python -m http.server 8080`
    - Install [live-server](https://github.com/tapio/live-server): `npm install -g live-server` and then run it: `live-server`
-
