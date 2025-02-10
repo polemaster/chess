@@ -16,6 +16,9 @@ export class ChessUI {
     this.sound.addEventListeners();
 
     this.reset_button = new ResetGameButton(game, this.board_display);
+
+    if (game.previous_move)
+      this.updatePreviousMove(game.previous_move.from, game.previous_move.to);
   }
 
   movePiece(from, to) {
@@ -59,6 +62,18 @@ export class ChessUI {
       ".possible_move, .possible_capture",
     );
     squares.forEach((square) => square.remove());
+  }
+
+  updatePreviousMove(from, to) {
+    // First remove previous-move class from all the squares
+    const squares = document.querySelectorAll(".previous-move");
+    squares.forEach((square) => square.classList.remove("previous-move"));
+
+    // Now add the class to 2 squares
+    const from_html = document.getElementById(from);
+    const to_html = document.getElementById(to);
+    from_html.classList.add("previous-move");
+    to_html.classList.add("previous-move");
   }
 
   getPromotionPiece(piece, square) {
@@ -149,6 +164,8 @@ export class ChessUI {
 
   endGame(result) {
     console.log("The UI updating after game end...");
+    console.log("And the winner is...");
+    console.log(result.toUpperCase() + "!!!");
     this.board_display.makeTransparent(0.6);
   }
 }

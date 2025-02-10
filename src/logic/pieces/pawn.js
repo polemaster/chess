@@ -12,7 +12,7 @@ export class Pawn extends Piece {
         ? ["up-left", "up-right"]
         : ["down-left", "down-right"];
     this.starting_row = this.color === "white" ? 2 : 7;
-    this.can_enpassant = false;
+    this.en_passant = null;
   }
 
   getPossibleMoves(board) {
@@ -77,5 +77,30 @@ export class Pawn extends Piece {
     }
 
     return moves;
+  }
+
+  enPassant(previous_move) {
+    if (!previous_move) return false;
+    const { from, to, piece } = previous_move;
+    const distance = Math.abs(to.charCodeAt(1) - from.charCodeAt(1));
+    const is_adjacent =
+      Math.abs(to.charCodeAt(0) - this.square.charCodeAt(0)) === 1;
+
+    if (
+      piece.type === "pawn" &&
+      distance === 2 &&
+      to.charAt(1) === this.square.charAt(1) &&
+      is_adjacent
+    ) {
+      const square_between =
+        from.charAt(0) + (from.charAt(1) === "2" ? "3" : "6");
+
+      return {
+        move: square_between,
+        capture: to,
+      };
+    }
+
+    return false;
   }
 }

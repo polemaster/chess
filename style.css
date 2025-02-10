@@ -131,3 +131,11 @@ img {
   background-color: white;
   transform: scale(1);
 }
+
+.previous-move.light-square {
+  background-color: #f5f580;
+}
+
+.previous-move.dark-square {
+  background-color: #b9ca42;
+}

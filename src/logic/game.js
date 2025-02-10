@@ -11,6 +11,7 @@ export class Game {
     this.piece_to_move = null;
     this.is_end = false;
     this.pieces_moved = state?.pieces_moved ? state.pieces_moved : {};
+    this.previous_move = state?.previous_move ? state.previous_move : null;
   }
 
   get ui() {
@@ -98,6 +99,15 @@ export class Game {
       this.ui.movePiece(rook_square, new_rook_square);
     }
 
+    // If en passant, remove the captured pawn
+    if (piece.type === "pawn" && piece.enPassant(this.previous_move)) {
+      console.log("TAKING EN PASSANT:", piece.enPassant(this.previous_move));
+      const { move, capture } = piece.enPassant(this.previous_move);
+      to = move;
+      this.ui.removePiece(capture);
+      this.board.removePiece(capture);
+    }
+
     // Check if it is a capture
     if (this.isCapture(this.board, to)) {
       console.log("Capturing...", this.board.getPiece(to));
@@ -118,13 +128,19 @@ export class Game {
       this.pieces_moved[piece.color + "_" + piece.square.charAt(0) + "_rook"] =
         true;
 
+    // Update last move (needed for gui and en passant)
+    this.previous_move = { from, to, piece };
+    this.ui.updatePreviousMove(from, to);
+
+    // Save game state so that refresh of the page doesn't reset the game
     this.saveState();
 
     // Check for the end condition
-    if (this.isEnd()) {
+    const winner = this.isEnd();
+    if (winner) {
       console.log("Game ended");
       this.is_end = true;
-      this.ui.endGame("");
+      this.ui.endGame(winner);
     }
   }
 
@@ -146,7 +162,7 @@ export class Game {
     new_piece.move(square);
 
     // If after a move, the king is checked, it is invalid
-    if (this.isCheck(tmp_board, piece.color)) {
+    if (this.isInCheck(tmp_board, piece.color)) {
       return false;
     }
 
@@ -154,7 +170,7 @@ export class Game {
   }
 
   // Returns true if "color"'s king is being checked
-  isCheck(board, color) {
+  isInCheck(board, color) {
     const king = board.pieces.filter(
       (p) => p.color === color && p.type === "king",
     )[0];
@@ -250,7 +266,8 @@ export class Game {
     const white = this.getNumberOfValidMoves("white");
     const black = this.getNumberOfValidMoves("black");
 
-    if (white === 0 || black === 0) return true;
+    if (white === 0) return "black";
+    if (black === 0) return "white";
 
     return false;
   }
@@ -279,8 +296,9 @@ export class Game {
     }
 
     // en passant
-    if (piece.type === "pawn" && piece.can_enpassant) {
-      // implement en passant
+    if (piece.type === "pawn" && piece.enPassant(this.previous_move)) {
+      const move = piece.enPassant(this.previous_move).move;
+      moves.push(move);
     }
     return moves;
   }
@@ -303,6 +321,7 @@ export class Game {
       board: this.board,
       current_player: this.current_turn,
       pieces_moved: this.pieces_moved,
+      previous_move: this.previous_move,
     };
     sessionStorage.setItem("board_state", JSON.stringify(state));
   }
@@ -314,6 +333,7 @@ export class Game {
     this.piece_to_move = null;
     this.is_end = false;
     this.pieces_moved = {};
+    this.previous_move = null;
     sessionStorage.clear();
     console.log("Game resetted");
   }

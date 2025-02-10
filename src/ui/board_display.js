@@ -55,6 +55,7 @@ export class BoardDisplay {
     if (img_class) img.classList.add(img_class);
     html_square.appendChild(img);
   }
+
   addPiecesImages(pieces) {
     for (const piece of pieces) {
       this.createPiece(
@@ -127,6 +128,10 @@ export class BoardDisplay {
     // Then render all images again
     this.addPiecesImages(pieces);
     this.makeTransparent(1);
+
+    // Remove previous move
+    const prev_move = document.querySelectorAll(".previous-move");
+    prev_move.forEach((square) => square.classList.remove("previous-move"));
   }
 
   makeTransparent(value) {
