@@ -23,7 +23,8 @@ Now you need to start a local web server to run the application on:
 ## Project details
 
 Example screen from the game:  
-img
+![image](https://github.com/user-attachments/assets/9af9de3f-123a-4573-86d5-9f326fbee246)
+
 
 Images of the chess pieces were taken from [here](https://commons.wikimedia.org/wiki/Category:SVG_chess_pieces).
 
