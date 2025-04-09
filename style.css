@@ -2,6 +2,10 @@
   --light-color: #ebecd0;
   --dark-color: #739552;
   --board-size: 8;
+  --dark-color-prev-move: #b9ca42;
+  --light-color-prev-move: #f5f580;
+  --possible-move-color: #00ff00;
+  --background-color: #302e2b;
   /* --highlight-color: #f39c12; */
   /* --font-size: 16px; */
 }
@@ -12,8 +16,7 @@ body {
   align-items: center;
   min-height: 100vh;
   margin: 0;
-  background-color: #302e2b;
-  /* background-color: white; */
+  background-color: var(--background-color);
 }
 
 #chessboard {
@@ -45,7 +48,7 @@ body {
   z-index: 2; /* Ensures the text appears above the image */
   font-size: 12px;
   font-weight: bold;
-  color: rgba(0, 0, 0, 0.6); /* Semi-transparent text color */
+  /* color: rgba(0, 0, 0, 0.6);  */
   user-select: none;
 }
 
@@ -88,7 +91,7 @@ img {
 .possible_move {
   width: 15px;
   height: 15px;
-  background-color: yellow;
+  background-color: var(--possible-move-color);
   border-radius: 50%;
   pointer-events: none;
 }
@@ -96,7 +99,7 @@ img {
 .possible_capture {
   width: 90%;
   height: 90%;
-  border: 2px solid yellow;
+  border: 2px solid var(--possible-move-color);
   border-radius: 50%;
   position: absolute;
   pointer-events: none;
@@ -133,9 +136,9 @@ img {
 }
 
 .previous-move.light-square {
-  background-color: #f5f580;
+  background-color: var(--light-color-prev-move);
 }
 
 .previous-move.dark-square {
-  background-color: #b9ca42;
+  background-color: var(--dark-color-prev-move);
 }
