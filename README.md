@@ -39,8 +39,8 @@ Implemented game features:
   - Pawn promotion
   - Checkmate
   - Checking legality of moves
+  - No draws (only checkmate ends the game)
 - Graphical User Interface
   - Moving pieces by both dragging and clicking.
   - Displaying all possible moves when a piece is clicked.
-  - No draws (only checkmate ends the game)
 - Session storage - game persists upon refreshing the site
